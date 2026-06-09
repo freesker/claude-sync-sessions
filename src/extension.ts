@@ -4,7 +4,7 @@ import { LocalTreeProvider } from './tree/localTreeProvider.ts';
 import { RemoteTreeProvider } from './tree/remoteTreeProvider.ts';
 import { registerSyncCommands } from './commands/syncCommands.ts';
 import { registerConfigCommands } from './commands/configCommands.ts';
-import { syncSettingsToDisk, readSettings } from './config/settings.ts';
+import { mirrorConfigToDisk, readSettings } from './config/settings.ts';
 import { isConfigured } from './config/syncConfig.ts';
 import { initStatusBar, updateStatusBar } from './ui/statusBar.ts';
 import { registerHooksCommands, hooksInstalled } from './commands/hooksCommand.ts';
@@ -12,7 +12,7 @@ import { registerHooksCommands, hooksInstalled } from './commands/hooksCommand.t
 export function activate(context: vscode.ExtensionContext): void {
   initLogger();
   log('Claude Sync activated');
-  syncSettingsToDisk();
+  void mirrorConfigToDisk(context.secrets);
 
   const local = new LocalTreeProvider();
   const remote = new RemoteTreeProvider();

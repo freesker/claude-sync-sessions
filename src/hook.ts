@@ -6,7 +6,7 @@ import { scanLocalSessions } from './core/sessionScanner.ts';
 import { exportSession } from './core/exporter.ts';
 import { importBundle } from './core/importer.ts';
 import { packBundle, unpackBundle } from './core/bundler.ts';
-import { GitBackend } from './backends/gitBackend.ts';
+import { makeBackend } from './backends/backendFactory.ts';
 import { fileLog } from './core/fileLog.ts';
 
 interface HookInput { session_id?: string; cwd?: string; hook_event_name?: string; }
@@ -29,11 +29,9 @@ async function main(): Promise<void> {
   const cwd = input.cwd || process.cwd();
 
   const cfg = loadSyncConfig();
-  if (!isConfigured(cfg) || cfg.backend !== 'git') {
-    fileLog(`hook ${event}: not configured for git backend, skipping`);
-    return;
-  }
-  const backend = new GitBackend(cfg, fileLog);
+  if (!isConfigured(cfg)) { fileLog(`hook ${event}: not configured, skipping`); return; }
+  if (cfg.backend === 'server' && !cfg.serverToken) { fileLog('hook: server backend but no token in config, skipping'); return; }
+  const backend = makeBackend(cfg, fileLog, cfg.serverToken);
   const home = os.homedir();
 
   try {

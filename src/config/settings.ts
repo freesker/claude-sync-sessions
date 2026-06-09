@@ -4,6 +4,7 @@ import { saveSyncConfig } from './syncConfig.ts';
 import type { SyncConfig } from '../types.ts';
 
 const SECTION = 'claudeSyncSessions';
+const TOKEN_KEY = 'claudeSyncSessions.serverToken';
 
 export function readSettings(): SyncConfig {
   const c = vscode.workspace.getConfiguration(SECTION);
@@ -16,15 +17,15 @@ export function readSettings(): SyncConfig {
   };
 }
 
-// Mirror VSCode settings into ~/.claude-sync-sessions/config.json so the hook
-// entrypoint (which has no vscode) can read the same configuration.
-export function syncSettingsToDisk(): SyncConfig {
+// Mirror settings + the SecretStorage token into config.json for the hooks entrypoint.
+export async function mirrorConfigToDisk(secrets: vscode.SecretStorage): Promise<SyncConfig> {
   const cfg = readSettings();
-  saveSyncConfig(cfg);
+  const serverToken = (await secrets.get(TOKEN_KEY)) || undefined;
+  saveSyncConfig({ ...cfg, serverToken });
   return cfg;
 }
 
-export async function updateSetting(key: string, value: unknown): Promise<void> {
+export async function updateSetting(secrets: vscode.SecretStorage, key: string, value: unknown): Promise<void> {
   await vscode.workspace.getConfiguration(SECTION).update(key, value, vscode.ConfigurationTarget.Global);
-  syncSettingsToDisk();
+  await mirrorConfigToDisk(secrets);
 }

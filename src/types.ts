@@ -60,4 +60,5 @@ export interface SyncConfig {
   backend: 'git' | 'server';
   gitRepoUrl: string;
   serverUrl: string;
+  serverToken?: string;   // mirrored from SecretStorage so hooks can use the server backend
 }

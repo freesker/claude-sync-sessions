@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { updateSetting, readSettings } from '../config/settings.ts';
+import { updateSetting, readSettings, mirrorConfigToDisk } from '../config/settings.ts';
 
 const required = (label: string) => (v: string) => (v && v.trim() ? undefined : `${label} is required`);
 
@@ -47,12 +47,12 @@ export function registerConfigCommands(context: vscode.ExtensionContext): void {
       });
       if (gitRepoUrl === undefined) return;
 
-      await updateSetting('deviceName', deviceName.trim());
-      await updateSetting('projectsRoot', projectsRoot.trim());
+      await updateSetting(context.secrets, 'deviceName', deviceName.trim());
+      await updateSetting(context.secrets, 'projectsRoot', projectsRoot.trim());
       if (gitRepoUrl.trim()) {
         warnIfScpWithPort(gitRepoUrl);
-        await updateSetting('gitRepoUrl', gitRepoUrl.trim());
-        await updateSetting('backend', 'git');
+        await updateSetting(context.secrets, 'gitRepoUrl', gitRepoUrl.trim());
+        await updateSetting(context.secrets, 'backend', 'git');
       }
 
       if (!gitRepoUrl.trim() && !readSettings().serverUrl) {
@@ -68,8 +68,8 @@ export function registerConfigCommands(context: vscode.ExtensionContext): void {
       const url = await vscode.window.showInputBox({ prompt: 'Git repository URL (SSH or HTTPS)', value: readSettings().gitRepoUrl, ignoreFocusOut: true });
       if (url === undefined) return;
       warnIfScpWithPort(url);
-      await updateSetting('gitRepoUrl', url.trim());
-      await updateSetting('backend', 'git');
+      await updateSetting(context.secrets, 'gitRepoUrl', url.trim());
+      await updateSetting(context.secrets, 'backend', 'git');
       vscode.window.showInformationMessage('Claude Sync: Git repository set.');
     }),
 
@@ -77,9 +77,12 @@ export function registerConfigCommands(context: vscode.ExtensionContext): void {
       const url = await vscode.window.showInputBox({ prompt: 'Server base URL', value: readSettings().serverUrl });
       if (url === undefined) return;
       const token = await vscode.window.showInputBox({ prompt: 'Server token (stored in SecretStorage)', password: true });
-      await updateSetting('serverUrl', url);
-      await updateSetting('backend', 'server');
-      if (token) await context.secrets.store('claudeSyncSessions.serverToken', token);
+      await updateSetting(context.secrets, 'serverUrl', url);
+      await updateSetting(context.secrets, 'backend', 'server');
+      if (token) {
+        await context.secrets.store('claudeSyncSessions.serverToken', token);
+        await mirrorConfigToDisk(context.secrets);
+      }
       vscode.window.showInformationMessage('Claude Sync: server set.');
     }),
   );
