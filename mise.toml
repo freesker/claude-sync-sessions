@@ -1,0 +1,61 @@
+# Development environment, managed by mise — https://mise.jdx.dev
+#
+#   mise install        # install the pinned toolchains below
+#   mise tasks          # list available tasks
+#   mise run setup      # install extension deps
+#
+# This monorepo has two parts: the VSCode extension (TypeScript, repo root) and the
+# Go sync server (server/). Both toolchains are pinned here.
+
+[tools]
+node = "24"   # VSCode extension tooling (esbuild, tsx, vsce)
+go = "1.26"   # Go sync server (server/go.mod requires >= 1.22)
+
+# --- VSCode extension (repo root) ---
+
+[tasks.setup]
+description = "Install extension dependencies"
+run = "npm install"
+
+[tasks.compile]
+description = "Bundle the extension (esbuild → out/)"
+run = "npm run compile"
+
+[tasks.typecheck]
+description = "Type-check the extension"
+run = "npm run typecheck"
+
+[tasks.test]
+description = "Run extension unit tests"
+run = "npm test"
+
+[tasks.package]
+description = "Build the .vsix"
+run = "npm run package"
+
+# --- Go sync server (server/) ---
+
+[tasks."server:build"]
+description = "Build the Go server binaries"
+dir = "server"
+run = "go build ./..."
+
+[tasks."server:test"]
+description = "Run Go server tests"
+dir = "server"
+run = "go test ./..."
+
+[tasks."server:vet"]
+description = "Vet the Go server"
+dir = "server"
+run = "go vet ./..."
+
+[tasks."server:run"]
+description = "Run the server locally (dev data dir + dev admin token)"
+dir = "server"
+run = "DATA_DIR=./.data ADMIN_TOKEN=dev-admin-token go run ./cmd/server"
+
+[tasks."server:image"]
+description = "Build the linux/amd64 Docker image locally (needs buildx)"
+dir = "server"
+run = "docker buildx build --platform linux/amd64 -t claude-sync-server:dev ."

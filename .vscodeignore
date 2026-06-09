@@ -10,5 +10,7 @@ esbuild.js
 *.vsix
 media/icon-source.svg
 TODO
+mise.toml
+.envrc
 node_modules/
 server/

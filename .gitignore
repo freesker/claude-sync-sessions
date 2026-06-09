@@ -4,3 +4,9 @@ out/
 TODO
 docs/
 .claude/
+server/.data/
+mise.local.toml
+.mise.local.toml
+.direnv/
+/server/admin
+/server/server
