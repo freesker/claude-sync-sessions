@@ -2,7 +2,7 @@
   "name": "claude-sync-sessions",
   "displayName": "Claude Sync Sessions",
   "description": "Sync Claude Code sessions between machines via Git/Forgejo or a self-hosted server",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "freesker",
   "license": "MIT",
   "repository": {
@@ -10,11 +10,19 @@
     "url": "https://github.com/freesker/claude-sync-sessions.git"
   },
   "homepage": "https://github.com/freesker/claude-sync-sessions#readme",
-  "bugs": { "url": "https://github.com/freesker/claude-sync-sessions/issues" },
-  "engines": { "vscode": "^1.85.0" },
-  "categories": ["Other"],
+  "bugs": {
+    "url": "https://github.com/freesker/claude-sync-sessions/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
   "icon": "media/icon.png",
-  "activationEvents": ["onStartupFinished"],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "scripts": {
     "vscode:prepublish": "node esbuild.js --production",
@@ -35,52 +43,170 @@
   "contributes": {
     "viewsContainers": {
       "activitybar": [
-        { "id": "claudeSync", "title": "Claude Sync", "icon": "media/icon.svg" }
+        {
+          "id": "claudeSync",
+          "title": "Claude Sync",
+          "icon": "media/icon.svg"
+        }
       ]
     },
     "views": {
       "claudeSync": [
-        { "id": "claudeSync.local", "name": "Local Sessions" },
-        { "id": "claudeSync.remote", "name": "Remote Bundles" }
+        {
+          "id": "claudeSync.local",
+          "name": "Local Sessions"
+        },
+        {
+          "id": "claudeSync.remote",
+          "name": "Remote Bundles"
+        }
       ]
     },
     "commands": [
-      { "command": "claudeSync.refreshLocal", "title": "Refresh Local Sessions", "icon": "$(refresh)" },
-      { "command": "claudeSync.refreshRemote", "title": "Refresh Remote Bundles", "icon": "$(refresh)" },
-      { "command": "claudeSync.push", "title": "Upload Session", "icon": "$(cloud-upload)" },
-      { "command": "claudeSync.pull", "title": "Download Session", "icon": "$(cloud-download)" },
-      { "command": "claudeSync.pushAll", "title": "Upload All Sessions", "icon": "$(cloud-upload)" },
-      { "command": "claudeSync.pullAll", "title": "Download All Sessions", "icon": "$(cloud-download)" },
-      { "command": "claudeSync.pushAllProject", "title": "Upload All Sessions in Project", "icon": "$(cloud-upload)" },
-      { "command": "claudeSync.configureDevice", "title": "Claude Sync: Configure Device" },
-      { "command": "claudeSync.setGitRepo", "title": "Claude Sync: Set Git Repository URL" },
-      { "command": "claudeSync.setServer", "title": "Claude Sync: Set Server URL" },
-      { "command": "claudeSync.installHooks", "title": "Claude Sync: Install Auto-Sync Hooks" },
-      { "command": "claudeSync.uninstallHooks", "title": "Claude Sync: Remove Auto-Sync Hooks" },
-      { "command": "claudeSync.showOutput", "title": "Claude Sync: Show Logs" }
+      {
+        "command": "claudeSync.refreshLocal",
+        "title": "Refresh Local Sessions",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "claudeSync.refreshRemote",
+        "title": "Refresh Remote Bundles",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "claudeSync.push",
+        "title": "Upload Session",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "claudeSync.pull",
+        "title": "Download Session",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "claudeSync.pushAll",
+        "title": "Upload All Sessions",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "claudeSync.pullAll",
+        "title": "Download All Sessions",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "claudeSync.pushAllProject",
+        "title": "Upload All Sessions in Project",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "claudeSync.configureDevice",
+        "title": "Claude Sync: Configure Device"
+      },
+      {
+        "command": "claudeSync.setGitRepo",
+        "title": "Claude Sync: Set Git Repository URL"
+      },
+      {
+        "command": "claudeSync.setServer",
+        "title": "Claude Sync: Set Server URL"
+      },
+      {
+        "command": "claudeSync.installHooks",
+        "title": "Claude Sync: Install Auto-Sync Hooks"
+      },
+      {
+        "command": "claudeSync.uninstallHooks",
+        "title": "Claude Sync: Remove Auto-Sync Hooks"
+      },
+      {
+        "command": "claudeSync.showOutput",
+        "title": "Claude Sync: Show Logs"
+      }
     ],
     "menus": {
       "view/title": [
-        { "command": "claudeSync.pushAll", "when": "view == claudeSync.local", "group": "navigation@1" },
-        { "command": "claudeSync.refreshLocal", "when": "view == claudeSync.local", "group": "navigation@2" },
-        { "command": "claudeSync.pullAll", "when": "view == claudeSync.remote", "group": "navigation@1" },
-        { "command": "claudeSync.refreshRemote", "when": "view == claudeSync.remote", "group": "navigation@2" }
+        {
+          "command": "claudeSync.pushAll",
+          "when": "view == claudeSync.local",
+          "group": "navigation@1"
+        },
+        {
+          "command": "claudeSync.refreshLocal",
+          "when": "view == claudeSync.local",
+          "group": "navigation@2"
+        },
+        {
+          "command": "claudeSync.pullAll",
+          "when": "view == claudeSync.remote",
+          "group": "navigation@1"
+        },
+        {
+          "command": "claudeSync.refreshRemote",
+          "when": "view == claudeSync.remote",
+          "group": "navigation@2"
+        }
       ],
       "view/item/context": [
-        { "command": "claudeSync.push", "when": "view == claudeSync.local && viewItem == session", "group": "inline" },
-        { "command": "claudeSync.pushAllProject", "when": "view == claudeSync.local && viewItem == project", "group": "inline" },
-        { "command": "claudeSync.pull", "when": "view == claudeSync.remote && viewItem == remoteBundle", "group": "inline" }
+        {
+          "command": "claudeSync.push",
+          "when": "view == claudeSync.local && viewItem == session",
+          "group": "inline"
+        },
+        {
+          "command": "claudeSync.pushAllProject",
+          "when": "view == claudeSync.local && viewItem == project",
+          "group": "inline"
+        },
+        {
+          "command": "claudeSync.pull",
+          "when": "view == claudeSync.remote && viewItem == remoteBundle",
+          "group": "inline"
+        }
       ]
     },
     "configuration": {
       "title": "Claude Sync Sessions",
       "properties": {
-        "claudeSyncSessions.backend": { "type": "string", "enum": ["git", "server"], "default": "git", "description": "Sync backend.", "scope": "machine" },
-        "claudeSyncSessions.gitRepoUrl": { "type": "string", "default": "", "description": "Git repository URL (SSH or HTTPS), e.g. a Forgejo repo.", "scope": "machine" },
-        "claudeSyncSessions.serverUrl": { "type": "string", "default": "", "description": "Self-hosted sync server base URL.", "scope": "machine" },
-        "claudeSyncSessions.deviceName": { "type": "string", "default": "", "description": "This device's identifier.", "scope": "machine" },
-        "claudeSyncSessions.projectsRoot": { "type": "string", "default": "", "description": "Parent directory that contains your projects on this device.", "scope": "machine" },
-        "claudeSyncSessions.autoRefreshOnFocus": { "type": "boolean", "default": true, "description": "Refresh local sessions when the panel gains focus.", "scope": "machine" }
+        "claudeSyncSessions.backend": {
+          "type": "string",
+          "enum": [
+            "git",
+            "server"
+          ],
+          "default": "git",
+          "description": "Sync backend.",
+          "scope": "machine"
+        },
+        "claudeSyncSessions.gitRepoUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Git repository URL (SSH or HTTPS), e.g. a Forgejo repo.",
+          "scope": "machine"
+        },
+        "claudeSyncSessions.serverUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Self-hosted sync server base URL.",
+          "scope": "machine"
+        },
+        "claudeSyncSessions.deviceName": {
+          "type": "string",
+          "default": "",
+          "description": "This device's identifier.",
+          "scope": "machine"
+        },
+        "claudeSyncSessions.projectsRoot": {
+          "type": "string",
+          "default": "",
+          "description": "Parent directory that contains your projects on this device.",
+          "scope": "machine"
+        },
+        "claudeSyncSessions.autoRefreshOnFocus": {
+          "type": "boolean",
+          "default": true,
+          "description": "Refresh local sessions when the panel gains focus.",
+          "scope": "machine"
+        }
       }
     }
   }
