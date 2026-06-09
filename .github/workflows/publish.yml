@@ -1,0 +1,48 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Verify version matches release tag
+        run: |
+          PKG_VERSION="v$(node -p "require('./package.json').version")"
+          if [ "$PKG_VERSION" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::package.json version ($PKG_VERSION) does not match release tag (${GITHUB_REF_NAME}). Bump package.json and recreate the release."
+            exit 1
+          fi
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Package extension
+        run: npx @vscode/vsce package --out claude-sync-sessions.vsix
+
+      - name: Publish to VS Code Marketplace
+        run: npx @vscode/vsce publish --packagePath claude-sync-sessions.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Attach VSIX to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: claude-sync-sessions.vsix

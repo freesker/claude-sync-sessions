@@ -80,9 +80,6 @@ The server token is stored in VSCode SecretStorage, not in settings.
 
 ## Roadmap / TODO
 
-Planned follow-ups deferred from the initial version (see
-`docs/superpowers/specs/` and `docs/superpowers/plans/`):
-
 - [ ] **Self-hosted server.** Build the actual sync server that implements the client's API
       contract (`POST /api/sessions/push`, `GET /api/sessions`, `GET /api/sessions/{prefix}`,
       `GET /health`). Only the client is implemented today.
