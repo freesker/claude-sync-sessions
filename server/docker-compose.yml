@@ -1,0 +1,16 @@
+services:
+  sync-server:
+    image: ghcr.io/freesker/claude-sync-server:latest
+    # For local dev, comment the image line above and uncomment:
+    # build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - sync-data:/data
+    environment:
+      - DATA_DIR=/data
+      # - ADMIN_TOKEN=change-me-on-first-start
+    restart: unless-stopped
+
+volumes:
+  sync-data:
