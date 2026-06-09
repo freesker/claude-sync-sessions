@@ -56,3 +56,18 @@ test('handles raw (non-JSON-escaped) windows backslashes on normalize', () => {
   assert.ok(out.includes('${HOME}'));
   assert.ok(!out.includes('C:\\'));
 });
+
+test('denormalize emits backslash project paths on windows without mangling other slashes', () => {
+  const t = { projectRoot: 'C:/Users/bob/app', home: 'C:/Users/bob' };
+  const out = denormalizeLine('{"cwd":"${PROJECT_ROOT}","f":"${PROJECT_ROOT}/a.ts","note":"see https://x.dev/p"}', t, { windows: true });
+  const obj = JSON.parse(out); // must stay valid JSON
+  assert.equal(obj.cwd, 'C:\\Users\\bob\\app'); // project path → native backslashes
+  assert.ok(obj.f.startsWith('C:\\Users\\bob\\app')); // continuation keeps its separator (mixed is OK on Windows)
+  assert.equal(obj.note, 'see https://x.dev/p'); // unrelated URL slashes are NOT touched
+});
+
+test('denormalize default (posix) behaviour is unchanged', () => {
+  const t = { projectRoot: '/home/bob/app', home: '/home/bob' };
+  const obj = JSON.parse(denormalizeLine('{"cwd":"${PROJECT_ROOT}"}', t));
+  assert.equal(obj.cwd, '/home/bob/app');
+});

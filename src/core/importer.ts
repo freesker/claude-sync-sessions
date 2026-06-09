@@ -73,11 +73,11 @@ export function importBundle(
 
   fs.mkdirSync(projDir, { recursive: true });
   // Write with a trailing newline to match Claude Code's own .jsonl files.
-  const jsonl = bundle.session.messages.map((l) => denormalizeLine(l, tokens)).join('\n');
+  const jsonl = bundle.session.messages.map((l) => denormalizeLine(l, tokens, { windows: process.platform === 'win32' })).join('\n');
   fs.writeFileSync(jsonlPath, jsonl ? `${jsonl}\n` : jsonl);
 
   for (const [name, content] of Object.entries(bundle.session.agents)) {
-    const agentText = content.split('\n').map((l) => denormalizeLine(l, tokens)).join('\n');
+    const agentText = content.split('\n').map((l) => denormalizeLine(l, tokens, { windows: process.platform === 'win32' })).join('\n');
     fs.writeFileSync(containedJoin(projDir, name), agentText ? `${agentText}\n` : agentText);
   }
 
