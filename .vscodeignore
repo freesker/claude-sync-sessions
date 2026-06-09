@@ -1,0 +1,13 @@
+src/
+test/
+docs/
+.claude/
+.gitignore
+.vscodeignore
+tsconfig.json
+esbuild.js
+**/*.map
+*.vsix
+media/icon-source.svg
+TODO
+node_modules/
