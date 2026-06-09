@@ -8,6 +8,7 @@ import { importBundle } from './core/importer.ts';
 import { packBundle, unpackBundle } from './core/bundler.ts';
 import { makeBackend } from './backends/backendFactory.ts';
 import { fileLog } from './core/fileLog.ts';
+import { isUnchanged, markPushed } from './core/pushState.ts';
 
 interface HookInput { session_id?: string; cwd?: string; hook_event_name?: string; }
 
@@ -38,8 +39,10 @@ async function main(): Promise<void> {
     if (event === 'SessionEnd') {
       if (!sessionId) { fileLog('SessionEnd: no session_id'); return; }
       const bundle = exportSession(sessionId, cwd, cfg, home);
+      if (isUnchanged(sessionId, bundle.checksum)) { fileLog(`SessionEnd: unchanged ${sessionId}, skipping`); return; }
       const label = `sync: ${sessionId.slice(0, 8)} | ${bundle.session.project.name} | ${bundle.session.meta.firstPrompt.slice(0, 50)}`;
       await backend.push(bundle.session.project.name, `${sessionId}.bundle.gz`, packBundle(bundle), label);
+      markPushed(sessionId, bundle.checksum);
       fileLog(`SessionEnd: pushed ${sessionId}`);
     } else if (event === 'SessionStart') {
       await backend.ensure();

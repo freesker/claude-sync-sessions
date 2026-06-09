@@ -8,6 +8,7 @@ import { importBundle } from '../core/importer.ts';
 import { packBundle, unpackBundle } from '../core/bundler.ts';
 import { makeBackend } from '../backends/backendFactory.ts';
 import { log } from '../ui/logger.ts';
+import { isUnchanged, markPushed } from '../core/pushState.ts';
 import type { SyncBackend } from '../backends/syncBackend.ts';
 import type { LocalTreeProvider } from '../tree/localTreeProvider.ts';
 import type { RemoteTreeProvider } from '../tree/remoteTreeProvider.ts';
@@ -29,11 +30,13 @@ async function backendFor(context: vscode.ExtensionContext, cfg: SyncConfig): Pr
   return makeBackend(cfg, log, token);
 }
 
-async function pushOne(s: LocalSession, cfg: SyncConfig, backend: SyncBackend): Promise<void> {
+async function pushOne(s: LocalSession, cfg: SyncConfig, backend: SyncBackend, force = false): Promise<void> {
   const bundle = exportSession(s.sessionId, s.projectPath, cfg, os.homedir());
+  if (!force && isUnchanged(s.sessionId, bundle.checksum)) { log(`skip unchanged ${s.sessionId.slice(0, 8)}`); return; }
   const bytes = packBundle(bundle);
   const label = `sync: ${s.sessionId.slice(0, 8)} | ${s.projectName} | ${bundle.session.meta.firstPrompt.slice(0, 50)}`;
   await backend.push(s.projectName, `${s.sessionId}.bundle.gz`, bytes, label);
+  markPushed(s.sessionId, bundle.checksum);
 }
 
 export function registerSyncCommands(
@@ -46,7 +49,7 @@ export function registerSyncCommands(
       const cfg = await requireConfig(); if (!cfg) return;
       const backend = await backendFor(context, cfg);
       await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Uploading ${node.session.sessionId.slice(0, 8)}…` },
-        async () => { await pushOne(node.session, cfg, backend); });
+        async () => { await pushOne(node.session, cfg, backend, true); });
       vscode.window.showInformationMessage('Claude Sync: session uploaded.');
       remote.refresh();
     }),
