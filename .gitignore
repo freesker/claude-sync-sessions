@@ -5,6 +5,7 @@ TODO
 docs/
 .claude/
 server/.data/
+server/sync-data/
 mise.local.toml
 .mise.local.toml
 .direnv/
