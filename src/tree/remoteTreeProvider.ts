@@ -6,19 +6,24 @@ import { isConfigured } from '../config/syncConfig.ts';
 import { log } from '../ui/logger.ts';
 import type { RemoteBundle } from '../types.ts';
 
+const TOKEN_KEY = 'claudeSyncSessions.serverToken';
+
 export class RemoteTreeProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChange = new vscode.EventEmitter<void>();
   readonly onDidChangeTreeData = this._onDidChange.event;
   private bundles: RemoteBundle[] = [];
-  private token: string | undefined;
 
-  setToken(token?: string): void { this.token = token; }
+  constructor(private readonly secrets: vscode.SecretStorage) {}
 
   async refresh(): Promise<void> {
     const cfg = readSettings();
     if (!isConfigured(cfg)) { this.bundles = []; this._onDidChange.fire(); return; }
     try {
-      const backend = makeBackend(cfg, log, this.token);
+      // Read the server token fresh from SecretStorage every refresh — the same
+      // source the push/pull commands use — so it can't go stale after the server
+      // is configured mid-session.
+      const token = cfg.backend === 'server' ? await this.secrets.get(TOKEN_KEY) : undefined;
+      const backend = makeBackend(cfg, log, token);
       await backend.ensure();
       this.bundles = await backend.list();
     } catch (e) {

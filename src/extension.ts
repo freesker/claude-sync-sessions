@@ -15,18 +15,13 @@ export function activate(context: vscode.ExtensionContext): void {
   void mirrorConfigToDisk(context.secrets);
 
   const local = new LocalTreeProvider();
-  const remote = new RemoteTreeProvider();
+  const remote = new RemoteTreeProvider(context.secrets);
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider('claudeSync.local', local),
     vscode.window.registerTreeDataProvider('claudeSync.remote', remote),
   );
   local.refresh();
-  void (async () => {
-    if (readSettings().backend === 'server') {
-      remote.setToken(await context.secrets.get('claudeSyncSessions.serverToken'));
-    }
-    remote.refresh();
-  })();
+  void remote.refresh();
 
   registerConfigCommands(context);
   initStatusBar(context);
