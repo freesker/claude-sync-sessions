@@ -13,6 +13,22 @@ Set an initial admin via env (`ADMIN_TOKEN`) on first start, or use the admin CL
     docker compose exec sync-server /admin create-user alice
     docker compose exec sync-server /admin create-user root --admin
 
+### Storage & permissions
+
+The image runs as the non-root user `uid 65532`, and `/data` in the image is owned by it,
+so **Docker-managed volumes (named or anonymous) work out of the box** — use one:
+
+    volumes:
+      - sync-data:/data        # recommended
+
+A **host bind-mount** (`- ./sync-data:/data`) keeps the *host* directory's ownership, so the
+container can't write it unless the host dir is writable by uid 65532. With a bind-mount you
+get `unable to open database file (14)` on start. Fix it with one of:
+
+- use a Docker named volume instead (above), **or**
+- make the host dir writable: `mkdir -p sync-data && sudo chown -R 65532:65532 sync-data`, **or**
+- run the container as a uid that owns the dir, e.g. add `user: "0:0"` to the compose service.
+
 ## Configuration (env)
 
 | Var | Default | Purpose |
