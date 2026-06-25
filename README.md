@@ -80,9 +80,6 @@ The server token is stored in VSCode SecretStorage, not in settings.
 
 ## Roadmap / TODO
 
-- [ ] **Self-hosted server.** Build the actual sync server that implements the client's API
-      contract (`POST /api/sessions/push`, `GET /api/sessions`, `GET /api/sessions/{prefix}`,
-      `GET /health`). Only the client is implemented today.
 - [ ] **Server backend from hooks.** Hooks currently support the Git backend only (the vscode-free
       config has no server token); extend hook auto-sync to the server backend.
 - [ ] **Windows end-to-end verification.** Verify project-dir-name encoding and the path round-trip

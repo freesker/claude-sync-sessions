@@ -13,6 +13,19 @@ Set an initial admin via env (`ADMIN_TOKEN`) on first start, or use the admin CL
     docker compose exec sync-server /admin create-user alice
     docker compose exec sync-server /admin create-user root --admin
 
+### Storage & permissions
+
+On start the container (briefly as root) makes `DATA_DIR` writable, then drops privileges and
+runs the server as a non-root user (uid 65532). So **both named volumes and host bind-mounts
+work out of the box**:
+
+    volumes:
+      - ./sync-data:/data      # host bind-mount: just works
+      # or a Docker-managed named volume:
+      # - sync-data:/data
+
+Note: with a bind-mount, the host directory's ownership is set to uid 65532 on first start.
+
 ## Configuration (env)
 
 | Var | Default | Purpose |
