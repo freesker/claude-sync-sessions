@@ -10,3 +10,4 @@ export function binDir(home?: string): string { return path.join(appDir(home), '
 export function configPath(home?: string): string { return path.join(appDir(home), 'config.json'); }
 export function hookLogPath(home?: string): string { return path.join(appDir(home), 'hook.log'); }
 export function hookLauncherPath(home?: string): string { return path.join(binDir(home), 'hook.cjs'); }
+export function hookLauncherStampPath(home?: string): string { return `${hookLauncherPath(home)}.version`; }

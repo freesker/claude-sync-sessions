@@ -3,19 +3,28 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { claudeDir } from '../core/claudePaths.ts';
-import { hookLauncherPath, binDir } from '../config/appPaths.ts';
+import { hookLauncherPath } from '../config/appPaths.ts';
+import { syncLauncher, launcherPresent, removeLauncher } from '../core/hookLauncher.ts';
 import { log } from '../ui/logger.ts';
 
 const MARKER = 'claude-sync-sessions';
 
 function settingsPath(): string { return path.join(claudeDir(os.homedir()), 'settings.json'); }
 
-function writeLauncher(context: vscode.ExtensionContext): string {
-  const target = context.asAbsolutePath('out/hook.js').replace(/\\/g, '/');
-  fs.mkdirSync(binDir(), { recursive: true });
-  const launcher = hookLauncherPath();
-  fs.writeFileSync(launcher, `require(${JSON.stringify(target)});\n`);
-  return launcher;
+function writeLauncher(context: vscode.ExtensionContext, force = false): string {
+  const bundle = context.asAbsolutePath('out/hook.js');
+  const version = String(context.extension.packageJSON.version ?? '0');
+  if (syncLauncher(bundle, version, { force })) log(`hook launcher updated (${version})`);
+  return hookLauncherPath();
+}
+
+/**
+ * Refreshes the launcher copy after an extension update, so hooks installed by a
+ * previous version keep working. No-op when the user never installed the hooks.
+ */
+export function refreshLauncher(context: vscode.ExtensionContext): void {
+  if (!launcherPresent() && !hooksInstalled()) return;
+  try { writeLauncher(context); } catch (e) { log(`hook launcher refresh failed: ${e}`); }
 }
 
 function hookCmd(launcher: string, event: string): string {
@@ -39,7 +48,7 @@ export function hooksInstalled(): boolean {
 export function registerHooksCommands(context: vscode.ExtensionContext, onChange: () => void): void {
   context.subscriptions.push(
     vscode.commands.registerCommand('claudeSync.installHooks', () => {
-      const launcher = writeLauncher(context);
+      const launcher = writeLauncher(context, true);
       const p = settingsPath();
       const s = fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : {};
       s.hooks = s.hooks ?? {};
@@ -55,6 +64,7 @@ export function registerHooksCommands(context: vscode.ExtensionContext, onChange
 
     vscode.commands.registerCommand('claudeSync.uninstallHooks', () => {
       const p = settingsPath();
+      removeLauncher();
       if (!fs.existsSync(p)) { onChange(); return; }
       const s = JSON.parse(fs.readFileSync(p, 'utf8'));
       if (s.hooks?.SessionEnd) s.hooks.SessionEnd = s.hooks.SessionEnd.filter((g: any) => !isOurs(g));

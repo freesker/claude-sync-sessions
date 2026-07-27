@@ -7,7 +7,7 @@ import { registerConfigCommands } from './commands/configCommands.ts';
 import { mirrorConfigToDisk, readSettings } from './config/settings.ts';
 import { isConfigured } from './config/syncConfig.ts';
 import { initStatusBar, updateStatusBar } from './ui/statusBar.ts';
-import { registerHooksCommands, hooksInstalled } from './commands/hooksCommand.ts';
+import { registerHooksCommands, hooksInstalled, refreshLauncher } from './commands/hooksCommand.ts';
 
 export function activate(context: vscode.ExtensionContext): void {
   initLogger();
@@ -27,6 +27,7 @@ export function activate(context: vscode.ExtensionContext): void {
   initStatusBar(context);
   const refreshStatus = () => updateStatusBar(hooksInstalled());
   registerHooksCommands(context, refreshStatus);
+  refreshLauncher(context);
   refreshStatus();
   registerSyncCommands(context, local, remote);
 
