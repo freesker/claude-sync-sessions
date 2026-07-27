@@ -2,7 +2,7 @@
   "name": "claude-sync-sessions",
   "displayName": "Claude Sync Sessions",
   "description": "Sync Claude Code sessions between machines via Git/Forgejo or a self-hosted server",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "freesker",
   "license": "MIT",
   "repository": {
