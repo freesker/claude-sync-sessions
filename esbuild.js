@@ -17,6 +17,8 @@ const common = {
 // intermediate states stay compilable.
 const entries = [{ in: 'src/extension.ts', out: 'out/extension.js' }];
 if (fs.existsSync('src/hook.ts')) entries.push({ in: 'src/hook.ts', out: 'out/hook.js' });
+// Standalone node script run by the `vscode:uninstall` manifest hook.
+if (fs.existsSync('src/uninstall.ts')) entries.push({ in: 'src/uninstall.ts', out: 'out/uninstall.js' });
 
 async function main() {
   const contexts = await Promise.all(

@@ -26,6 +26,7 @@
   "main": "./out/extension.js",
   "scripts": {
     "vscode:prepublish": "node esbuild.js --production",
+    "vscode:uninstall": "node ./out/uninstall.js",
     "compile": "node esbuild.js",
     "watch": "node esbuild.js --watch",
     "typecheck": "tsc --noEmit",
